@@ -1,7 +1,14 @@
 // create an entries collection the MongoDB db
 Entries = new Meteor.Collection('entries');
 
+
+
 if (Meteor.isClient) {
+    // account sign-in configuration
+    Accounts.ui.config({
+        passwordSignupFields: 'USERNAME_ONLY'
+    });
+
 
     // expose the Entries collection to the entries template (as 'entries')
     Template.entries.entries = function () {
@@ -13,12 +20,16 @@ if (Meteor.isClient) {
     Template.input.events = {
         // map the event (click) for the control for the given selector
         'click input#sendMessage': function (event) {
-            var name = document.getElementById('user');
+            var user = Meteor.user();
+            if (!user) {
+                return;
+            }
+
             var message = document.getElementById('message');
-            if (message.value != '' && name.value != '') {
+            if (message.value != '') {
                 // add the entry to the list of entries
                 Entries.insert({
-                    name: name.value,
+                    user: user,
                     message: message.value,
                     time: Date.now()
                 });
